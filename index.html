@@ -5,13 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Library Management System</title>
 
-  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
-  <!-- LOGIN PAGE -->
   <div id="loginPage" class="login-box active">
     <h2>Login</h2>
     <input type="text" id="username" placeholder="Username"><br>
@@ -19,10 +17,8 @@
     <button onclick="login()">Login</button>
   </div>
 
-  <!-- MAIN WEBSITE --> 
   <div id="mainWebsite" style="display:none;">
     <header class="navbar">
-      <!-- 🏫 School Logo (appears on every page) -->
       <img src="logo.png" alt="School Logo" width="60" height="60" style="vertical-align: middle; margin-right: 10px;">
       
       <h1 style="display: inline-block; vertical-align: middle;">📚 Library Management System</h1>
@@ -40,7 +36,6 @@
       <button class="logout-btn" onclick="logout()">Logout</button>
     </header>
 
-    <!-- HOME SECTION -->
     <section id="home" class="content-section active">
       <h2>Welcome to the Library!</h2>
       <p>Manage books, borrowing, and returns easily.</p>
@@ -59,7 +54,6 @@
       </div>
     </section>
 
-    <!-- ADD BOOK SECTION -->
     <section id="addBook" class="content-section">
       <h2>Add a New Book</h2>
       <input type="text" id="bookId" placeholder="Book ID"><br>
@@ -69,7 +63,6 @@
       <p id="addBookMsg"></p>
     </section>
 
-    <!-- BORROW SECTION -->
     <section id="borrow" class="content-section">
       <h2>Borrow a Book</h2>
       <input type="text" id="borrowBookId" placeholder="Book ID"><br>
@@ -88,7 +81,6 @@
       <p id="borrowMsg"></p>
     </section>
 
-    <!-- RETURN SECTION -->
     <section id="return" class="content-section">
       <h2>Return a Book</h2>
       <input type="text" id="returnBookId" placeholder="Book ID"><br>
@@ -96,7 +88,6 @@
       <p id="returnMsg"></p>
     </section>
 
-<!-- 🔍 SEARCH SECTION -->
 <section id="search" class="content-section">
   <h2>Search Available Books</h2>
   <input type="text" id="searchInput" placeholder="Enter book title, ID, or category">
@@ -116,9 +107,6 @@
   </table>
 </section>
 
-
-
-    <!-- CLAIM SECTION -->
     <section id="claim" class="content-section">
       <h2>Borrowed Books</h2>
       <table id="claimedTable" border="1" style="width:100%; border-collapse:collapse;">
@@ -136,7 +124,6 @@
       </table>
     </section>
 
-    <!-- 👨‍💻 DEVELOPERS SECTION -->
 <section id="developers" class="content-section">
   <h2>The Developers</h2>
   <p>Meet the passionate team behind this Library Management System.</p>
@@ -170,7 +157,6 @@
     </div>
   </div>
 </section>
-
 
   </div>
 
