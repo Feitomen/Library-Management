@@ -76,15 +76,15 @@ function addBook() {
   }
 }
 
+// ✅ FIXED VERSION – NO CATEGORY REQUIRED
 function borrowBook() {
   const idInput = borrowBookId.value.trim();
   const borrowerName = clientName.value.trim();
   const studentIdInput = studentId.value.trim();
   const contactInput = contactNumber.value.trim();
-  const categoryInput = borrowCategory.value;
   const msg = borrowMsg;
 
-  if (!idInput || !borrowerName || !studentIdInput || !contactInput || !categoryInput) {
+  if (!idInput || !borrowerName || !studentIdInput || !contactInput) {
     msg.textContent = "⚠️ Please fill out all fields.";
     msg.style.color = "orange";
     return;
@@ -100,7 +100,7 @@ function borrowBook() {
     return;
   }
 
-  if (borrowed.some(b => b.bookid && b.bookid.toLowerCase() === idInput.toLowerCase() && b.status !== "Returned")) {
+  if (borrowed.some(b => b.bookid.toLowerCase() === idInput.toLowerCase() && b.status !== "Returned")) {
     msg.textContent = "⚠️ This book is already borrowed.";
     msg.style.color = "orange";
     return;
@@ -112,7 +112,7 @@ function borrowBook() {
     borrower: borrowerName,
     studentId: studentIdInput,
     contact: contactInput,
-    category: categoryInput,
+    category: "-",        // ✅ AUTO SET TO "-"
     dateBorrowed: new Date().toLocaleString(),
     status: "Borrowed",
   });
@@ -126,8 +126,7 @@ function borrowBook() {
   msg.style.color = "lightgreen";
 
   borrowBookId.value = clientName.value = studentId.value = contactNumber.value = "";
-  borrowCategory.value = "";
-
+  
   updateClaimedList();
   showAllBooks();
 }
@@ -145,7 +144,7 @@ function returnBook() {
   let borrowed = JSON.parse(localStorage.getItem(BORROW_DB)) || [];
   let books = JSON.parse(localStorage.getItem(BOOK_DB)) || [];
 
-  const borrowIndex = borrowed.findIndex(b => (b.bookid || "").toLowerCase() === bookIdInput.toLowerCase());
+  const borrowIndex = borrowed.findIndex(b => b.bookid.toLowerCase() === bookIdInput.toLowerCase());
   if (borrowIndex === -1) {
     msg.textContent = "❌ Book not found in borrowed records.";
     msg.style.color = "red";
@@ -155,7 +154,7 @@ function returnBook() {
   borrowed[borrowIndex].status = "Returned";
   borrowed[borrowIndex].dateReturned = new Date().toLocaleString();
 
-  const book = books.find(b => (b.id || "").toLowerCase() === bookIdInput.toLowerCase());
+  const book = books.find(b => b.id.toLowerCase() === bookIdInput.toLowerCase());
   if (book) book.status = "Available";
 
   localStorage.setItem(BOOK_DB, JSON.stringify(books));
@@ -181,48 +180,11 @@ function updateClaimedList() {
   const borrowed = JSON.parse(localStorage.getItem(BORROW_DB)) || [];
   borrowed.forEach(b => {
     table.innerHTML += `
-      <tr>
-        <td>${b.bookid}</td><td>${b.title}</td><td>${b.borrower}</td>
-        <td>${b.studentId}</td><td>${b.contact}</td><td>${b.category}</td>
-        <td>${b.dateBorrowed}</td><td>${b.dateReturned || "-"}</td><td>${b.status}</td>
-      </tr>`;
-  });
-}
-
-function searchBook() {
-  const query = document.getElementById("searchInput").value.trim().toLowerCase();
-  const tableBody = document.getElementById("searchResultsBody");
-  const msgContainer = document.getElementById("searchMsg");
-  msgContainer.innerHTML = "";
-  tableBody.innerHTML = "";
-
-  const books = JSON.parse(localStorage.getItem(BOOK_DB)) || [];
-  const availableBooks = books.filter(b => b.status === "Available");
-
-  if (!query) {
-    msgContainer.innerHTML = "<p style='color:orange;'>⚠️ Please enter a keyword.</p>";
-    return;
-  }
-
-  const results = availableBooks.filter(book =>
-    (book.title || "").toLowerCase().includes(query) ||
-    (book.id || "").toLowerCase().includes(query) ||
-    (book.category || "").toLowerCase().includes(query)
-  );
-
-  if (results.length === 0) {
-    tableBody.innerHTML = `<tr><td colspan="4" style="color:red;">❌ No available books found.</td></tr>`;
-    return;
-  }
-
-  results.forEach(book => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${book.id}</td>
-      <td>${book.title}</td>
-      <td>${book.category || "-"}</td>
-      <td style="color:green;font-weight:bold;">Available</td>`;
-    tableBody.appendChild(row);
+    <tr>
+      <td>${b.bookid}</td><td>${b.title}</td><td>${b.borrower}</td>
+      <td>${b.studentId}</td><td>${b.contact}</td><td>${b.category}</td>
+      <td>${b.dateBorrowed}</td><td>${b.dateReturned || "-"}</td><td>${b.status}</td>
+    </tr>`;
   });
 }
 
