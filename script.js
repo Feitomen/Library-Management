@@ -57,7 +57,6 @@ function showSection(id) {
   document.querySelectorAll(".content-section").forEach(sec => sec.classList.remove("active"));
   document.getElementById(id).classList.add("active");
 
-  // 🧩 Auto-load available books when "search" section opens
   if (id === "search") showAllBooks();
 }
 
@@ -130,7 +129,7 @@ function borrowBook() {
   borrowCategory.value = "";
 
   updateClaimedList();
-  showAllBooks(); // refresh list automatically
+  showAllBooks();
 }
 
 function returnBook() {
@@ -167,7 +166,7 @@ function returnBook() {
   document.getElementById("returnBookId").value = "";
 
   updateClaimedList();
-  showAllBooks(); // auto-refresh available list
+  showAllBooks();
 }
 
 function updateClaimedList() {
@@ -190,7 +189,6 @@ function updateClaimedList() {
   });
 }
 
-// 🔍 SEARCH AVAILABLE BOOKS
 function searchBook() {
   const query = document.getElementById("searchInput").value.trim().toLowerCase();
   const tableBody = document.getElementById("searchResultsBody");
@@ -228,10 +226,9 @@ function searchBook() {
   });
 }
 
-// 📚 SHOW ALL AVAILABLE BOOKS
 function showAllBooks() {
   const books = JSON.parse(localStorage.getItem(BOOK_DB)) || [];
-  const tableBody = document.getElementById("searchTableBody")
+  const tableBody = document.getElementById("searchTableBody");
   tableBody.innerHTML = "";
 
   const availableBooks = books.filter(b => b.status === "Available");
@@ -252,7 +249,6 @@ function showAllBooks() {
   });
 }
 
-// 🧩 Auto-load DB on start
 window.addEventListener("load", () => {
   loadDB();
   showAllBooks();
