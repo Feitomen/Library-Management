@@ -35,6 +35,7 @@ function login() {
   document.querySelectorAll(".adminOnly").forEach(el => {
     el.style.display = currentUser.role === "admin" ? "inline-block" : "none";
   });
+
   document.querySelectorAll(".clientOnly").forEach(el => {
     el.style.display = currentUser.role === "client" ? "inline-block" : "none";
   });
@@ -54,7 +55,9 @@ function logout() {
 }
 
 function showSection(id) {
-  document.querySelectorAll(".content-section").forEach(sec => sec.classList.remove("active"));
+  document.querySelectorAll(".content-section").forEach(sec =>
+    sec.classList.remove("active")
+  );
   document.getElementById(id).classList.add("active");
 
   if (id === "search") showAllBooks();
@@ -67,7 +70,14 @@ function addBook() {
   const msg = addBookMsg;
 
   if (id && title && author) {
-    books.push({ id, title, author, category: "-", status: "Available" });
+    books.push({
+      id,
+      title,
+      author,
+      category: "-",
+      status: "Available"
+    });
+
     saveDB();
     msg.innerText = `✅ Book "${title}" added successfully!`;
     bookId.value = bookTitle.value = bookAuthor.value = "";
@@ -76,15 +86,15 @@ function addBook() {
   }
 }
 
-// ✅ FIXED VERSION – NO CATEGORY REQUIRED
 function borrowBook() {
   const idInput = borrowBookId.value.trim();
   const borrowerName = clientName.value.trim();
   const studentIdInput = studentId.value.trim();
   const contactInput = contactNumber.value.trim();
+  const categoryInput = borrowCategory.value;
   const msg = borrowMsg;
 
-  if (!idInput || !borrowerName || !studentIdInput || !contactInput) {
+  if (!idInput || !borrowerName || !studentIdInput || !contactInput || !categoryInput) {
     msg.textContent = "⚠️ Please fill out all fields.";
     msg.style.color = "orange";
     return;
@@ -93,14 +103,24 @@ function borrowBook() {
   const books = JSON.parse(localStorage.getItem(BOOK_DB)) || [];
   const borrowed = JSON.parse(localStorage.getItem(BORROW_DB)) || [];
 
-  const foundBook = books.find(book => book.id.toLowerCase() === idInput.toLowerCase());
+  const foundBook = books.find(
+    book => book.id.toLowerCase() === idInput.toLowerCase()
+  );
+
   if (!foundBook) {
     msg.textContent = "❌ Book not found.";
     msg.style.color = "red";
     return;
   }
 
-  if (borrowed.some(b => b.bookid.toLowerCase() === idInput.toLowerCase() && b.status !== "Returned")) {
+  if (
+    borrowed.some(
+      b =>
+        b.bookid &&
+        b.bookid.toLowerCase() === idInput.toLowerCase() &&
+        b.status !== "Returned"
+    )
+  ) {
     msg.textContent = "⚠️ This book is already borrowed.";
     msg.style.color = "orange";
     return;
@@ -112,9 +132,9 @@ function borrowBook() {
     borrower: borrowerName,
     studentId: studentIdInput,
     contact: contactInput,
-    category: "-",        // ✅ AUTO SET TO "-"
+    category: categoryInput,
     dateBorrowed: new Date().toLocaleString(),
-    status: "Borrowed",
+    status: "Borrowed"
   });
 
   foundBook.status = "Borrowed";
@@ -125,8 +145,12 @@ function borrowBook() {
   msg.textContent = "✅ Book borrowed successfully!";
   msg.style.color = "lightgreen";
 
-  borrowBookId.value = clientName.value = studentId.value = contactNumber.value = "";
-  
+  borrowBookId.value =
+    clientName.value =
+    studentId.value =
+    contactNumber.value =
+    borrowCategory.value =
+      "";
   updateClaimedList();
   showAllBooks();
 }
@@ -144,7 +168,10 @@ function returnBook() {
   let borrowed = JSON.parse(localStorage.getItem(BORROW_DB)) || [];
   let books = JSON.parse(localStorage.getItem(BOOK_DB)) || [];
 
-  const borrowIndex = borrowed.findIndex(b => b.bookid.toLowerCase() === bookIdInput.toLowerCase());
+  const borrowIndex = borrowed.findIndex(
+    b => (b.bookid || "").toLowerCase() === bookIdInput.toLowerCase()
+  );
+
   if (borrowIndex === -1) {
     msg.textContent = "❌ Book not found in borrowed records.";
     msg.style.color = "red";
@@ -154,7 +181,9 @@ function returnBook() {
   borrowed[borrowIndex].status = "Returned";
   borrowed[borrowIndex].dateReturned = new Date().toLocaleString();
 
-  const book = books.find(b => b.id.toLowerCase() === bookIdInput.toLowerCase());
+  const book = books.find(
+    b => (b.id || "").toLowerCase() === bookIdInput.toLowerCase()
+  );
   if (book) book.status = "Available";
 
   localStorage.setItem(BOOK_DB, JSON.stringify(books));
@@ -170,27 +199,44 @@ function returnBook() {
 
 function updateClaimedList() {
   const table = claimedTable;
+
   table.innerHTML = `
     <tr>
-      <th>Book ID</th><th>Title</th><th>Borrower</th><th>Student ID</th>
-      <th>Contact</th><th>Category</th><th>Date Borrowed</th>
-      <th>Date Returned</th><th>Status</th>
-    </tr>`;
+      <th>Book ID</th>
+      <th>Title</th>
+      <th>Borrower</th>
+      <th>Student ID</th>
+      <th>Contact</th>
+      <th>Category</th>
+      <th>Date Borrowed</th>
+      <th>Date Returned</th>
+      <th>Status</th>
+    </tr>
+  `;
 
   const borrowed = JSON.parse(localStorage.getItem(BORROW_DB)) || [];
+
   borrowed.forEach(b => {
     table.innerHTML += `
-    <tr>
-      <td>${b.bookid}</td><td>${b.title}</td><td>${b.borrower}</td>
-      <td>${b.studentId}</td><td>${b.contact}</td><td>${b.category}</td>
-      <td>${b.dateBorrowed}</td><td>${b.dateReturned || "-"}</td><td>${b.status}</td>
-    </tr>`;
+      <tr>
+        <td>${b.bookid}</td>
+        <td>${b.title}</td>
+        <td>${b.borrower}</td>
+        <td>${b.studentId}</td>
+        <td>${b.contact}</td>
+        <td>${b.category}</td>
+        <td>${b.dateBorrowed}</td>
+        <td>${b.dateReturned || "-"}</td>
+        <td>${b.status}</td>
+      </tr>
+    `;
   });
 }
 
 function showAllBooks() {
   const books = JSON.parse(localStorage.getItem(BOOK_DB)) || [];
   const tableBody = document.getElementById("searchTableBody");
+
   tableBody.innerHTML = "";
 
   const availableBooks = books.filter(b => b.status === "Available");
@@ -206,7 +252,8 @@ function showAllBooks() {
       <td>${book.id}</td>
       <td>${book.title}</td>
       <td>${book.category || "-"}</td>
-      <td style="color:green;font-weight:bold;">Available</td>`;
+      <td style="color:green;font-weight:bold;">Available</td>
+    `;
     tableBody.appendChild(row);
   });
 }
