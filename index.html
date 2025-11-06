@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Library Management System</title>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <!-- LOGIN PAGE -->
+  <div id="loginPage" class="login-box active">
+    <h2>Login</h2>
+    <input type="text" id="username" placeholder="Username"><br>
+    <input type="password" id="password" placeholder="Password"><br>
+    <button onclick="login()">Login</button>
+  </div>
+
+  <!-- MAIN WEBSITE --> 
+  <div id="mainWebsite" style="display:none;">
+    <header class="navbar">
+      <!-- 🏫 School Logo (appears on every page) -->
+      <img src="logo.png" alt="School Logo" width="60" height="60" style="vertical-align: middle; margin-right: 10px;">
+      
+      <h1 style="display: inline-block; vertical-align: middle;">📚 Library Management System</h1>
+      
+      <nav style="display: inline-block; vertical-align: middle; margin-left: 20px;">
+        <a href="#" onclick="showSection('home')" class="nav-link">Home</a>
+        <a href="#" onclick="showSection('addBook')" class="nav-link adminOnly">Add Book</a>
+        <a href="#" onclick="showSection('borrow')" class="nav-link clientOnly">Borrow</a>
+        <a href="#" onclick="showSection('return')" class="nav-link clientOnly">Return</a>
+        <a href="#" onclick="showSection('search')" class="nav-link">Search</a>
+        <a href="#" onclick="showSection('claim')" class="nav-link adminOnly">Borrowed List</a>
+        <a href="#" onclick="showSection('developers')" class="nav-link clientOnly">Developers</a>
+      </nav>
+
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </header>
+
+    <!-- HOME SECTION -->
+    <section id="home" class="content-section active">
+      <h2>Welcome to the Library!</h2>
+      <p>Manage books, borrowing, and returns easily.</p>
+      <div class="about-us">
+        <h3>About Us</h3>
+        <p>Our Library Management System helps students, teachers, and librarians manage, borrow, and return books efficiently.</p>
+      </div>
+      <div class="social-media">
+        <h3>Follow Us</h3>
+        <div class="social-icons">
+          <a href="https://facebook.com" target="_blank" class="facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="https://twitter.com" target="_blank" class="twitter"><i class="fab fa-twitter"></i></a>
+          <a href="https://instagram.com" target="_blank" class="instagram"><i class="fab fa-instagram"></i></a>
+          <a href="https://youtube.com" target="_blank" class="youtube"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADD BOOK SECTION -->
+    <section id="addBook" class="content-section">
+      <h2>Add a New Book</h2>
+      <input type="text" id="bookId" placeholder="Book ID"><br>
+      <input type="text" id="bookTitle" placeholder="Book Title"><br>
+      <input type="text" id="bookAuthor" placeholder="Author"><br>
+      <button onclick="addBook()">Add Book</button>
+      <p id="addBookMsg"></p>
+    </section>
+
+    <!-- BORROW SECTION -->
+    <section id="borrow" class="content-section">
+      <h2>Borrow a Book</h2>
+      <input type="text" id="borrowBookId" placeholder="Book ID"><br>
+      <input type="text" id="clientName" placeholder="Client Full Name"><br>
+      <input type="text" id="studentId" placeholder="Student ID"><br>
+      <input type="text" id="contactNumber" placeholder="Contact Number"><br>
+      <select id="borrowCategory">
+        <option value="" disabled selected>Select Category</option>
+        <option value="Science">Science Books</option>
+        <option value="Computer">Computer Books</option>
+        <option value="Mathematics">Mathematics Books</option>
+        <option value="History">History Books</option>
+        <option value="Research">Research Books</option>
+      </select><br>
+      <button onclick="borrowBook()">Borrow Book</button>
+      <p id="borrowMsg"></p>
+    </section>
+
+    <!-- RETURN SECTION -->
+    <section id="return" class="content-section">
+      <h2>Return a Book</h2>
+      <input type="text" id="returnBookId" placeholder="Book ID"><br>
+      <button onclick="returnBook()">Return</button>
+      <p id="returnMsg"></p>
+    </section>
+
+<!-- 🔍 SEARCH SECTION -->
+<section id="search" class="content-section">
+  <h2>Search Available Books</h2>
+  <input type="text" id="searchInput" placeholder="Enter book title, ID, or category">
+  <button id="searchBtn">Search</button>
+  <button id="showAllBtn">Show All Available</button>
+
+  <table id="searchTable">
+    <thead>
+      <tr>
+        <th>Book ID</th>
+        <th>Title</th>
+        <th>Category</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="searchTableBody"></tbody>
+  </table>
+</section>
+
+
+
+    <!-- CLAIM SECTION -->
+    <section id="claim" class="content-section">
+      <h2>Borrowed Books</h2>
+      <table id="claimedTable" border="1" style="width:100%; border-collapse:collapse;">
+        <tr>
+          <th>Book ID</th>
+          <th>Title</th>
+          <th>Borrower Name</th>
+          <th>Student ID</th>
+          <th>Contact</th>
+          <th>Category</th>
+          <th>Date Borrowed</th>
+          <th>Date Returned</th>
+          <th>Status</th>
+        </tr>
+      </table>
+    </section>
+
+    <!-- 👨‍💻 DEVELOPERS SECTION -->
+<section id="developers" class="content-section">
+  <h2>The Developers</h2>
+  <p>Meet the passionate team behind this Library Management System.</p>
+
+  <div class="developers-container">
+    <div class="developer-card">
+      <img src="martin.jpg" alt="Martin Laurence Valderamos">
+      <h3>Martin Laurence Valderamos</h3>
+      <p>Front-End Developer</p>
+      <div class="dev-overlay">
+        <p>Martin is responsible for building and styling the front-end interface of the LMS, ensuring a smooth and user-friendly experience.</p>
+      </div>
+    </div>
+
+    <div class="developer-card">
+      <img src="axcel.jpg" alt="Axcel Catapal">
+      <h3>Axcel Catapal</h3>
+      <p>Research Paper</p>
+      <div class="dev-overlay">
+        <p>Axcel handled the technical documentation and research, ensuring academic and practical relevance in system development.</p>
+      </div>
+    </div>
+
+    <div class="developer-card">
+      <img src="leonard.jpg" alt="Leonard John Malinao">
+      <h3>Leonard John Malinao</h3>
+      <p>Figma</p>
+      <div class="dev-overlay">
+        <p>Leonard created the initial designs and prototypes using Figma, laying the foundation for the system's user interface.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
