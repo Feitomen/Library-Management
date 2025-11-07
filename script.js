@@ -5,9 +5,14 @@ let books = [];
 let borrowed = [];
 let currentUser = null;
 
+// ✅ FIX: Get table reference for Borrowed List
+const claimedTable = document.getElementById("claimedTable");
+const searchBtn = document.getElementById("searchBtn");
+const showAllBtn = document.getElementById("showAllBtn");
+
 const users = [
   { username: "admin", password: "1234", role: "admin" },
-  { username: "client", password: "1234", role: "client" },
+  { username: "client", password: "1234", role: "client" }
 ];
 
 function saveDB() {
@@ -22,35 +27,37 @@ function loadDB() {
 }
 
 function login() {
-  const user = document.getElementById("username").value;
-  const pass = document.getElementById("password").value;
-  const found = users.find(u => u.username === user && u.password === pass);
+  const user = username.value;
+  const pass = password.value;
 
+  const found = users.find(u => u.username === user && u.password === pass);
   if (!found) return alert("Invalid username or password!");
 
   currentUser = found;
-  document.getElementById("loginPage").style.display = "none";
-  document.getElementById("mainWebsite").style.display = "block";
 
-  document.querySelectorAll(".adminOnly").forEach(el => {
-    el.style.display = currentUser.role === "admin" ? "inline-block" : "none";
-  });
+  loginPage.style.display = "none";
+  mainWebsite.style.display = "block";
 
-  document.querySelectorAll(".clientOnly").forEach(el => {
-    el.style.display = currentUser.role === "client" ? "inline-block" : "none";
-  });
+  document.querySelectorAll(".adminOnly").forEach(el =>
+    el.style.display = currentUser.role === "admin" ? "inline-block" : "none"
+  );
+
+  document.querySelectorAll(".clientOnly").forEach(el =>
+    el.style.display = currentUser.role === "client" ? "inline-block" : "none"
+  );
 
   updateClaimedList();
   showSection("home");
+
   alert(`Welcome ${currentUser.role}!`);
 }
 
 function logout() {
   currentUser = null;
-  document.getElementById("mainWebsite").style.display = "none";
-  document.getElementById("loginPage").style.display = "block";
-  document.getElementById("username").value = "";
-  document.getElementById("password").value = "";
+  mainWebsite.style.display = "none";
+  loginPage.style.display = "block";
+  username.value = "";
+  password.value = "";
   alert("You have logged out.");
 }
 
@@ -100,12 +107,7 @@ function borrowBook() {
     return;
   }
 
-  const books = JSON.parse(localStorage.getItem(BOOK_DB)) || [];
-  const borrowed = JSON.parse(localStorage.getItem(BORROW_DB)) || [];
-
-  const foundBook = books.find(
-    book => book.id.toLowerCase() === idInput.toLowerCase()
-  );
+  const foundBook = books.find(book => book.id.toLowerCase() === idInput.toLowerCase());
 
   if (!foundBook) {
     msg.textContent = "❌ Book not found.";
@@ -113,14 +115,7 @@ function borrowBook() {
     return;
   }
 
-  if (
-    borrowed.some(
-      b =>
-        b.bookid &&
-        b.bookid.toLowerCase() === idInput.toLowerCase() &&
-        b.status !== "Returned"
-    )
-  ) {
+  if (borrowed.some(b => b.bookid === foundBook.id && b.status !== "Returned")) {
     msg.textContent = "⚠️ This book is already borrowed.";
     msg.style.color = "orange";
     return;
@@ -134,30 +129,27 @@ function borrowBook() {
     contact: contactInput,
     category: categoryInput,
     dateBorrowed: new Date().toLocaleString(),
+    dateReturned: "-",
     status: "Borrowed"
   });
 
   foundBook.status = "Borrowed";
 
-  localStorage.setItem(BOOK_DB, JSON.stringify(books));
-  localStorage.setItem(BORROW_DB, JSON.stringify(borrowed));
+  saveDB();
 
   msg.textContent = "✅ Book borrowed successfully!";
   msg.style.color = "lightgreen";
 
-  borrowBookId.value =
-    clientName.value =
-    studentId.value =
-    contactNumber.value =
-    borrowCategory.value =
-      "";
+  borrowBookId.value = clientName.value = studentId.value =
+    contactNumber.value = borrowCategory.value = "";
+
   updateClaimedList();
   showAllBooks();
 }
 
 function returnBook() {
-  const bookIdInput = document.getElementById("returnBookId").value.trim();
-  const msg = document.getElementById("returnMsg");
+  const bookIdInput = returnBookId.value.trim();
+  const msg = returnMsg;
 
   if (!bookIdInput) {
     msg.textContent = "⚠️ Enter a Book ID.";
@@ -165,11 +157,8 @@ function returnBook() {
     return;
   }
 
-  let borrowed = JSON.parse(localStorage.getItem(BORROW_DB)) || [];
-  let books = JSON.parse(localStorage.getItem(BOOK_DB)) || [];
-
   const borrowIndex = borrowed.findIndex(
-    b => (b.bookid || "").toLowerCase() === bookIdInput.toLowerCase()
+    b => b.bookid.toLowerCase() === bookIdInput.toLowerCase()
   );
 
   if (borrowIndex === -1) {
@@ -181,26 +170,21 @@ function returnBook() {
   borrowed[borrowIndex].status = "Returned";
   borrowed[borrowIndex].dateReturned = new Date().toLocaleString();
 
-  const book = books.find(
-    b => (b.id || "").toLowerCase() === bookIdInput.toLowerCase()
-  );
+  const book = books.find(b => b.id.toLowerCase() === bookIdInput.toLowerCase());
   if (book) book.status = "Available";
 
-  localStorage.setItem(BOOK_DB, JSON.stringify(books));
-  localStorage.setItem(BORROW_DB, JSON.stringify(borrowed));
+  saveDB();
 
-  msg.textContent = "✅ Book returned successfully and now available.";
+  msg.textContent = "✅ Book returned successfully!";
   msg.style.color = "lightgreen";
-  document.getElementById("returnBookId").value = "";
+  returnBookId.value = "";
 
   updateClaimedList();
   showAllBooks();
 }
 
 function updateClaimedList() {
-  const table = claimedTable;
-
-  table.innerHTML = `
+  claimedTable.innerHTML = `
     <tr>
       <th>Book ID</th>
       <th>Title</th>
@@ -214,10 +198,8 @@ function updateClaimedList() {
     </tr>
   `;
 
-  const borrowed = JSON.parse(localStorage.getItem(BORROW_DB)) || [];
-
   borrowed.forEach(b => {
-    table.innerHTML += `
+    claimedTable.innerHTML += `
       <tr>
         <td>${b.bookid}</td>
         <td>${b.title}</td>
@@ -226,15 +208,45 @@ function updateClaimedList() {
         <td>${b.contact}</td>
         <td>${b.category}</td>
         <td>${b.dateBorrowed}</td>
-        <td>${b.dateReturned || "-"}</td>
+        <td>${b.dateReturned}</td>
         <td>${b.status}</td>
       </tr>
     `;
   });
 }
 
+function searchBook() {
+  const query = searchInput.value.trim().toLowerCase();
+  const tableBody = document.getElementById("searchTableBody");
+
+  tableBody.innerHTML = "";
+
+  const availableBooks = books.filter(b => b.status === "Available");
+
+  const results = availableBooks.filter(book =>
+    book.id.toLowerCase().includes(query) ||
+    book.title.toLowerCase().includes(query) ||
+    book.category.toLowerCase().includes(query)
+  );
+
+  if (results.length === 0) {
+    tableBody.innerHTML = `<tr><td colspan="4" style="color:red;">❌ No available books found.</td></tr>`;
+    return;
+  }
+
+  results.forEach(book => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${book.id}</td>
+      <td>${book.title}</td>
+      <td>${book.category}</td>
+      <td style="color:green;font-weight:bold;">Available</td>
+    `;
+    tableBody.appendChild(row);
+  });
+}
+
 function showAllBooks() {
-  const books = JSON.parse(localStorage.getItem(BOOK_DB)) || [];
   const tableBody = document.getElementById("searchTableBody");
 
   tableBody.innerHTML = "";
@@ -251,14 +263,18 @@ function showAllBooks() {
     row.innerHTML = `
       <td>${book.id}</td>
       <td>${book.title}</td>
-      <td>${book.category || "-"}</td>
+      <td>${book.category}</td>
       <td style="color:green;font-weight:bold;">Available</td>
     `;
     tableBody.appendChild(row);
   });
 }
 
+searchBtn.addEventListener("click", searchBook);
+showAllBtn.addEventListener("click", showAllBooks);
+
 window.addEventListener("load", () => {
   loadDB();
   showAllBooks();
+  updateClaimedList();
 });
